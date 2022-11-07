@@ -1,0 +1,11 @@
+{
+    "name": "game-graphics-course-2022",
+    "scripts": {
+        "serve": "http-server"
+    },
+    "dependencies": {
+        "gl-matrix": "3.4.3",
+        "picogl": "0.17.9",
+        "http-server": "14.1.1"
+    }
+}
