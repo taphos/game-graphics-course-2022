@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Game Graphics Course demo</title>
+        <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+        <style>
+            body {
+                margin: 0;
+                background-color: black;
+                color: white;
+                font-family: Roboto,sans-serif;
+            }
+            canvas {
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <script type="module">
+            import PicoGL from "../node_modules/picogl/build/module/picogl.js";
+
+            window.midi = [];
+
+            const loadScript = window.location.search.substring(1);
+            if (loadScript && loadScript.endsWith(".js")) {
+                document.title = loadScript + " - " + document.title;
+
+                let canvas = document.createElement("canvas");
+                canvas.width = window.innerWidth * window.devicePixelRatio;
+                canvas.height = window.innerHeight * window.devicePixelRatio;
+                document.body.appendChild(canvas);
+
+                window.app = PicoGL.createApp(canvas, {alpha: false, antialias: true});
+                window.addEventListener("resize", function() {
+                    app.resize(window.innerWidth * devicePixelRatio, window.innerHeight * devicePixelRatio);
+                });
+
+                await import(loadScript);
+            }
+
+            window.midiAccess = await navigator.requestMIDIAccess();
+            for (const input of midiAccess.inputs.values()) {
+                input.onmidimessage = (message) => {
+                    // controller changed message https://www.midi.org/specifications-old/item/table-1-summary-of-midi-message
+                    if ((message.data[0] & 0xb0) === 0xb0)
+                        midi[message.data[1]] = message.data[2] / 127;
+                }
+            }
+        </script>
+    </body>
+</html>
