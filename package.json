@@ -1,7 +1,7 @@
 {
     "name": "game-graphics-course-2022",
     "scripts": {
-        "serve": "http-server"
+        "serve": "http-server --cors -c-1"
     },
     "dependencies": {
         "gl-matrix": "3.4.3",
