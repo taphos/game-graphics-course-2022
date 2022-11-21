@@ -7,9 +7,10 @@ import {positions, normals, indices} from "../blender/monkey.js"
 // **               Light configuration                **
 // ******************************************************
 
+let baseColor = vec3.fromValues(1.0, 0.1, 0.2);
 let ambientLightColor = vec3.fromValues(0.05, 0.05, 0.1);
 let numberOfPointLights = 2;
-let pointLightColors = [vec3.fromValues(1.0, 0.0, 0.2), vec3.fromValues(0.0, 0.1, 0.2)];
+let pointLightColors = [vec3.fromValues(1.0, 1.0, 1.0), vec3.fromValues(0.02, 0.5, 1.0)];
 let pointLightInitialPositions = [vec3.fromValues(5, 0, 2), vec3.fromValues(-5, 0, 2)];
 let pointLightPositions = [vec3.create(), vec3.create()];
 
@@ -17,30 +18,38 @@ let pointLightPositions = [vec3.create(), vec3.create()];
 // language=GLSL
 let lightCalculationShader = `
     uniform vec3 cameraPosition;
+    uniform vec3 baseColor;    
+
     uniform vec3 ambientLightColor;    
     uniform vec3 lightColors[${numberOfPointLights}];        
     uniform vec3 lightPositions[${numberOfPointLights}];
     
     // This function calculates light reflection using Phong reflection model (ambient + diffuse + specular)
     vec4 calculateLights(vec3 normal, vec3 position) {
+        float ambientIntensity = 1.0;
+        float diffuseIntensity = 1.0;
+        float specularIntensity = 5.0;
+        float specularPower = 100.0;
+        float metalness = 0.0;
+
         vec3 viewDirection = normalize(cameraPosition.xyz - position);
-        vec4 color = vec4(ambientLightColor, 1.0);
+        vec3 color = baseColor * ambientLightColor * ambientIntensity;
                 
         for (int i = 0; i < lightPositions.length(); i++) {
             vec3 lightDirection = normalize(lightPositions[i] - position);
             
             // Lambertian reflection (ideal diffuse of matte surfaces) is also a part of Phong model                        
             float diffuse = max(dot(lightDirection, normal), 0.0);                                    
+            color += baseColor * lightColors[i] * diffuse * diffuseIntensity;
                       
             // Phong specular highlight 
-            // float specular = pow(max(dot(viewDirection, reflect(-lightDirection, normal)), 0.0), 50.0);
+            float specular = pow(max(dot(viewDirection, reflect(-lightDirection, normal)), 0.0), specularPower);
             
-            // Blinn-Phong improved specular highlight                        
-            float specular = pow(max(dot(normalize(lightDirection + viewDirection), normal), 0.0), 200.0);
-            
-            color.rgb += lightColors[i] * diffuse + specular;
+            // Blinn-Phong improved specular highlight
+            // float specular = pow(max(dot(normalize(lightDirection + viewDirection), normal), 0.0), specularPower);
+            color += mix(vec3(1.0), baseColor, metalness) * lightColors[i] * specular * specularIntensity;
         }
-        return color;
+        return vec4(color, 1.0);
     }
 `;
 
@@ -108,6 +117,7 @@ let viewProjectionMatrix = mat4.create();
 let modelMatrix = mat4.create();
 
 let drawCall = app.createDrawCall(program, vertexArray)
+    .uniform("baseColor", baseColor)
     .uniform("ambientLightColor", ambientLightColor);
 
 let cameraPosition = vec3.fromValues(0, 0, 4);
