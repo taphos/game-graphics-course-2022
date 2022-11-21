@@ -32,7 +32,6 @@
             h2 {
                 color: white;
             }
-
             header {
                 padding: 30px 30px;
                 background-color: #222222;
@@ -61,9 +60,12 @@
             div.topic {
                 padding-bottom: 20px;
             }
-            div.topic h2 {
+            div.topic > h2 {
                 border-bottom: 1px solid #444;
                 padding-bottom: 10px;
+            }
+            div.topic > div {
+                display: flex;
             }
         </style>
     </head>
@@ -74,7 +76,7 @@
         <main>
             <div class="topic">
                 <h2>Introduction</h2>      
-                <div style="display: flex">
+                <div>
                     <div>
                         <div class="slides">
                             <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQ1un44_W1awJeaxVx1O6Rz6Pf8SwqrNpMOepLdT60L457Jij5xHnmJ26ry-ro8OpVt82vnK_RVBp3L/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
@@ -87,7 +89,7 @@
             </div>
             <div class="topic">
                 <h2>Rendering</h2>
-                <div style="display: flex">
+                <div>
                     <div>
                         <div class="slides">
                             <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vQVQxs1Ka0kTsGd6sh8izXuQK0LKdQlg1TcfK47BN1S6hY774tHg-vOZOKjdG3ZKMrM2sYVh1WAsluG/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
@@ -112,7 +114,7 @@
             </div>
             <div class="topic">
                 <h2>GPU</h2>      
-                <div style="display: flex">
+                <div>
                     <div>
                         <div class="slides">
                             <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vTcotoRwBOxmRa1ZvabQct6njAAo9-ipDgypk_scoECAsrYykPhVOwrr9f00vAFei63uD7bkowgeBHU/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
@@ -139,7 +141,7 @@
             </div>
             <div class="topic">
                 <h2>Texturing</h2>      
-                <div style="display: flex">
+                <div>
                     <div>
                         <div class="slides">
                             <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vR4bRYSux9rM0hZrDiKD3j7b3kuD8JS3Or572WAoFDLKfh6XVxjRttkO2Q-b6hkHA6aXuyfwLrCHFeq/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
@@ -161,7 +163,7 @@
             </div>
             <div class="topic">
                 <h2>Lighting</h2>      
-                <div style="display: flex">
+                <div>
                     <div>
                         <div class="slides">
                             <iframe src="https://docs.google.com/presentation/d/e/2PACX-1vR1wnns6wqNPjVv7mkcUW18Kkrh3NmySzBRmQX9-as3ja1XomHQX6L4Dhkp4HqcapRT97G2qgp8nmWq/embed?start=false&loop=false&delayms=3000" frameborder="0" width="480" height="299" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
@@ -169,6 +171,13 @@
                     </div>
                     <div class="desc">
                         Coding demo: <a href="./demos/index.html?./lighting.js">Lighting</a>
+                        Home assignment:
+                        <ol>
+                            <li>Study the coding demo <a href="https://github.com/taphos/game-graphics-course-2022/blob/main/demos/lighting.js">lighting.js</a></li>
+                            <li>Change light and material parameters</li>
+                            <li>Add more iluminated objects and more light sources</li>
+                            <li>Add textures (combine lighting and texturing demos)</li>
+                        </ol>
                     </div>     
                 </div>
             </div>
