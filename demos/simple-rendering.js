@@ -2,7 +2,7 @@ import PicoGL from "../node_modules/picogl/build/module/picogl.js";
 import {mat4, vec3, vec4} from "../node_modules/gl-matrix/esm/index.js";
 
 // *********************************************************************************************************************
-// **                                                                                                                 **
+// **                  Simple rendering of Desert Eagle                                                                                               **
 // **                  This is an example of simplistic forward rendering technique using WebGL                       **
 // **                                                                                                                 **
 // *********************************************************************************************************************
