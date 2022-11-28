@@ -24,7 +24,7 @@ let fragmentShader = `
         outColor = texture(cubemap, reflectedDir);
         
         // Try using a higher mipmap LOD to get a rough material effect without any performance impact
-        //outColor = textureLod(cubemap, reflectedDir, 7.0);
+        // outColor = textureLod(cubemap, reflectedDir, 7.0);
     }
 `;
 
@@ -202,97 +202,95 @@ async function loadTexture(fileName) {
     return await createImageBitmap(await (await fetch("images/" + fileName)).blob());
 }
 
-(async () => {
-    const cubemap = app.createCubemap({
-        negX: await loadTexture("stormydays_bk.png"),
-        posX: await loadTexture("stormydays_ft.png"),
-        negY: await loadTexture("stormydays_dn.png"),
-        posY: await loadTexture("stormydays_up.png"),
-        negZ: await loadTexture("stormydays_lf.png"),
-        posZ: await loadTexture("stormydays_rt.png")
-    });
+const cubemap = app.createCubemap({
+    negX: await loadTexture("stormydays_bk.png"),
+    posX: await loadTexture("stormydays_ft.png"),
+    negY: await loadTexture("stormydays_dn.png"),
+    posY: await loadTexture("stormydays_up.png"),
+    negZ: await loadTexture("stormydays_lf.png"),
+    posZ: await loadTexture("stormydays_rt.png")
+});
 
-    let drawCall = app.createDrawCall(program, vertexArray)
-        .texture("cubemap", cubemap);
+let drawCall = app.createDrawCall(program, vertexArray)
+    .texture("cubemap", cubemap);
 
-    let skyboxDrawCall = app.createDrawCall(skyboxProgram, skyboxArray)
-        .texture("cubemap", cubemap);
+let skyboxDrawCall = app.createDrawCall(skyboxProgram, skyboxArray)
+    .texture("cubemap", cubemap);
 
-    let mirrorDrawCall = app.createDrawCall(mirrorProgram, mirrorArray)
-        .texture("reflectionTex", reflectionColorTarget)
-        .texture("distortionMap", app.createTexture2D(await loadTexture("noise.png")));
+let mirrorDrawCall = app.createDrawCall(mirrorProgram, mirrorArray)
+    .texture("reflectionTex", reflectionColorTarget)
+    .texture("distortionMap", app.createTexture2D(await loadTexture("noise.png")));
 
-    function renderReflectionTexture()
-    {
-        app.drawFramebuffer(reflectionBuffer);
-        app.viewport(0, 0, reflectionColorTarget.width, reflectionColorTarget.height);
-        app.gl.cullFace(app.gl.FRONT);
+function renderReflectionTexture()
+{
+    app.drawFramebuffer(reflectionBuffer);
+    app.viewport(0, 0, reflectionColorTarget.width, reflectionColorTarget.height);
+    app.gl.cullFace(app.gl.FRONT);
 
-        let reflectionMatrix = calculateSurfaceReflectionMatrix(mat4.create(), mirrorModelMatrix, vec3.fromValues(0, 1, 0));
-        let reflectionViewMatrix = mat4.mul(mat4.create(), viewMatrix, reflectionMatrix);
-        let reflectionCameraPosition = vec3.transformMat4(vec3.create(), cameraPosition, reflectionMatrix);
-        drawObjects(reflectionCameraPosition, reflectionViewMatrix);
+    let reflectionMatrix = calculateSurfaceReflectionMatrix(mat4.create(), mirrorModelMatrix, vec3.fromValues(0, 1, 0));
+    let reflectionViewMatrix = mat4.mul(mat4.create(), viewMatrix, reflectionMatrix);
+    let reflectionCameraPosition = vec3.transformMat4(vec3.create(), cameraPosition, reflectionMatrix);
+    drawObjects(reflectionCameraPosition, reflectionViewMatrix);
 
-        app.gl.cullFace(app.gl.BACK);
-        app.defaultDrawFramebuffer();
-        app.defaultViewport();
-    }
+    app.gl.cullFace(app.gl.BACK);
+    app.defaultDrawFramebuffer();
+    app.defaultViewport();
+}
 
-    function drawObjects(cameraPosition, viewMatrix) {
-        mat4.multiply(viewProjMatrix, projMatrix, viewMatrix);
+function drawObjects(cameraPosition, viewMatrix) {
+    mat4.multiply(viewProjMatrix, projMatrix, viewMatrix);
 
-        mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
-        mat4.multiply(modelViewProjectionMatrix, viewProjMatrix, modelMatrix);
+    mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
+    mat4.multiply(modelViewProjectionMatrix, viewProjMatrix, modelMatrix);
 
-        let skyboxViewProjectionMatrix = mat4.create();
-        mat4.mul(skyboxViewProjectionMatrix, projMatrix, viewMatrix);
-        mat4.invert(skyboxViewProjectionInverse, skyboxViewProjectionMatrix);
+    let skyboxViewProjectionMatrix = mat4.create();
+    mat4.mul(skyboxViewProjectionMatrix, projMatrix, viewMatrix);
+    mat4.invert(skyboxViewProjectionInverse, skyboxViewProjectionMatrix);
 
-        app.clear();
+    app.clear();
 
-        app.disable(PicoGL.DEPTH_TEST);
-        app.disable(PicoGL.CULL_FACE);
-        skyboxDrawCall.uniform("viewProjectionInverse", skyboxViewProjectionInverse);
-        skyboxDrawCall.draw();
+    app.disable(PicoGL.DEPTH_TEST);
+    app.disable(PicoGL.CULL_FACE);
+    skyboxDrawCall.uniform("viewProjectionInverse", skyboxViewProjectionInverse);
+    skyboxDrawCall.draw();
 
-        app.enable(PicoGL.DEPTH_TEST);
-        app.enable(PicoGL.CULL_FACE);
-        drawCall.uniform("modelViewProjectionMatrix", modelViewProjectionMatrix);
-        drawCall.uniform("cameraPosition", cameraPosition);
-        drawCall.uniform("modelMatrix", modelMatrix);
-        drawCall.uniform("normalMatrix", mat3.normalFromMat4(mat3.create(), modelMatrix));
-        drawCall.draw();
-    }
+    app.enable(PicoGL.DEPTH_TEST);
+    app.enable(PicoGL.CULL_FACE);
+    drawCall.uniform("modelViewProjectionMatrix", modelViewProjectionMatrix);
+    drawCall.uniform("cameraPosition", cameraPosition);
+    drawCall.uniform("modelMatrix", modelMatrix);
+    drawCall.uniform("normalMatrix", mat3.normalFromMat4(mat3.create(), modelMatrix));
+    drawCall.draw();
+}
 
-    function drawMirror() {
-        mat4.multiply(mirrorModelViewProjectionMatrix, viewProjMatrix, mirrorModelMatrix);
-        mirrorDrawCall.uniform("modelViewProjectionMatrix", mirrorModelViewProjectionMatrix);
-        mirrorDrawCall.uniform("screenSize", vec2.fromValues(app.width, app.height))
-        mirrorDrawCall.draw();
-    }
+function drawMirror() {
+    mat4.multiply(mirrorModelViewProjectionMatrix, viewProjMatrix, mirrorModelMatrix);
+    mirrorDrawCall.uniform("modelViewProjectionMatrix", mirrorModelViewProjectionMatrix);
+    mirrorDrawCall.uniform("screenSize", vec2.fromValues(app.width, app.height))
+    mirrorDrawCall.draw();
+}
 
-    function draw(timems) {
-        let time = timems * 0.001;
+function draw(timems) {
+    let time = timems * 0.001;
 
-        mat4.perspective(projMatrix, Math.PI / 2.5, app.width / app.height, 0.1, 100.0);
-        vec3.rotateY(cameraPosition, vec3.fromValues(0, 3, 3.5), vec3.fromValues(0, 0, 0), time * 0.05);
-        mat4.lookAt(viewMatrix, cameraPosition, vec3.fromValues(0, -0.5, 0), vec3.fromValues(0, 1, 0));
+    mat4.perspective(projMatrix, Math.PI / 2.5, app.width / app.height, 0.1, 100.0);
+    vec3.rotateY(cameraPosition, vec3.fromValues(0, 3, 3.5), vec3.fromValues(0, 0, 0), time * 0.05);
+    mat4.lookAt(viewMatrix, cameraPosition, vec3.fromValues(0, -0.5, 0), vec3.fromValues(0, 1, 0));
 
-        mat4.fromXRotation(rotateXMatrix, time * 0.1136 - Math.PI / 2);
-        mat4.fromZRotation(rotateYMatrix, time * 0.2235);
-        mat4.mul(modelMatrix, rotateXMatrix, rotateYMatrix);
+    mat4.fromXRotation(rotateXMatrix, time * 0.1136 - Math.PI / 2);
+    mat4.fromZRotation(rotateYMatrix, time * 0.2235);
+    mat4.mul(modelMatrix, rotateXMatrix, rotateYMatrix);
 
-        mat4.fromXRotation(rotateXMatrix, 0.3);
-        mat4.fromYRotation(rotateYMatrix, time * 0.2354);
-        mat4.mul(mirrorModelMatrix, rotateYMatrix, rotateXMatrix);
-        mat4.translate(mirrorModelMatrix, mirrorModelMatrix, vec3.fromValues(0, -1, 0));
+    mat4.fromXRotation(rotateXMatrix, 0.3);
+    mat4.fromYRotation(rotateYMatrix, time * 0.2354);
+    mat4.mul(mirrorModelMatrix, rotateYMatrix, rotateXMatrix);
+    mat4.translate(mirrorModelMatrix, mirrorModelMatrix, vec3.fromValues(0, -1, 0));
 
-        renderReflectionTexture();
-        drawObjects(cameraPosition, viewMatrix);
-        drawMirror();
-
-        requestAnimationFrame(draw);
-    }
+    renderReflectionTexture();
+    drawObjects(cameraPosition, viewMatrix);
+    drawMirror();
 
     requestAnimationFrame(draw);
-})();
+}
+
+requestAnimationFrame(draw);
