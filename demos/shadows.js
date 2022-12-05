@@ -107,6 +107,8 @@ let shadowDepthTarget = app.createTexture2D(512, 512, {
     internalFormat: PicoGL.DEPTH_COMPONENT16,
     compareMode: PicoGL.COMPARE_REF_TO_TEXTURE,
     magFilter: PicoGL.LINEAR,
+    wrapS: PicoGL.CLAMP_TO_EDGE,
+    wrapT: PicoGL.CLAMP_TO_EDGE
 });
 let shadowBuffer = app.createFramebuffer().depthTarget(shadowDepthTarget);
 
