@@ -7,8 +7,8 @@ import {positions, normals, indices} from "../blender/monkey.js"
 // **               Light configuration                **
 // ******************************************************
 
-let baseColor = vec3.fromValues(1.0, 0.1, 0.2);
-let ambientLightColor = vec3.fromValues(0.1, 0.1, 1.0);
+let baseColor = vec3.fromValues(1.0, 0.6, 0.5);
+let ambientLightColor = vec3.fromValues(1.0, 0.1, 1.0);
 let numberOfPointLights = 2;
 let pointLightColors = [vec3.fromValues(1.0, 1.0, 1.0), vec3.fromValues(0.02, 0.4, 0.5)];
 let pointLightInitialPositions = [vec3.fromValues(5, 0, 2), vec3.fromValues(-5, 0, 2)];
@@ -27,10 +27,10 @@ let lightCalculationShader = `
     // This function calculates light reflection using Phong reflection model (ambient + diffuse + specular)
     vec4 calculateLights(vec3 normal, vec3 position) {
         float ambientIntensity = 0.5;
-        float diffuseIntensity = 1.0;
-        float specularIntensity = 2.0;
+        float diffuseIntensity = 2.0;
+        float specularIntensity = 10.0;
         float specularPower = 100.0;
-        float metalness = 0.0;
+        float metalness = 1.0;
 
         vec3 viewDirection = normalize(cameraPosition.xyz - position);
         vec3 color = baseColor * ambientLightColor * ambientIntensity;
