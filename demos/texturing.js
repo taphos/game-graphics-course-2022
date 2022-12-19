@@ -1,5 +1,5 @@
 // *********************************************************************************************************************
-// **                                                                                                                 **
+// **                Textured Desert Eagle                                                                                                 **
 // **             Texturing example, Cube is mapped with 2D texture, skybox is mapped with a Cubemap                  **
 // **                                                                                                                 **
 // *********************************************************************************************************************
@@ -7,7 +7,7 @@
 import PicoGL from "../node_modules/picogl/build/module/picogl.js";
 import {mat4, vec3} from "../node_modules/gl-matrix/esm/index.js";
 
-import {positions, uvs, indices} from "../blender/cube.js";
+import {positions, uvs, indices} from "../blender/deserteagle.js";
 import {positions as planePositions, indices as planeIndices} from "../blender/plane.js";
 
 // language=GLSL
@@ -15,7 +15,8 @@ let fragmentShader = `
     #version 300 es
     precision highp float;
     
-    uniform sampler2D tex;    
+    uniform sampler2D tex;
+    uniform float time;    
     
     in vec2 v_uv;
     
@@ -23,7 +24,7 @@ let fragmentShader = `
     
     void main()
     {        
-        outColor = texture(tex, v_uv);
+        outColor = texture(tex, 2.0 * ((v_uv - vec2(0.5)) * sin(time* 0.5) * vec2(-0.5)));
     }
 `;
 
@@ -41,7 +42,7 @@ let vertexShader = `
     
     void main()
     {
-        gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);           
+        gl_Position = modelViewProjectionMatrix * vec4(position, 25.0);           
         v_uv = uv;
     }
 `;
@@ -103,7 +104,7 @@ async function loadTexture(fileName) {
     return await createImageBitmap(await (await fetch("images/" + fileName)).blob());
 }
 
-const tex = await loadTexture("abstract.jpg");
+const tex = await loadTexture("trippy.png");
 let drawCall = app.createDrawCall(program, vertexArray)
     .texture("tex", app.createTexture2D(tex, tex.width, tex.height, {
         magFilter: PicoGL.LINEAR,
@@ -131,8 +132,9 @@ function draw(timems) {
     mat4.lookAt(viewMatrix, camPos, vec3.fromValues(0, 0, 0), vec3.fromValues(0, 1, 0));
     mat4.multiply(viewProjMatrix, projMatrix, viewMatrix);
 
-    mat4.fromXRotation(rotateXMatrix, time * 0.1136);
-    mat4.fromZRotation(rotateYMatrix, time * 0.2235);
+    //mat4.fromXRotation(rotateXMatrix, time * 0.1136);
+    //mat4.fromZRotation(rotateYMatrix, time * 0.2235);
+    mat4.fromYRotation(rotateYMatrix, time * 0.2235);
     mat4.multiply(modelMatrix, rotateXMatrix, rotateYMatrix);
 
     mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
@@ -152,6 +154,7 @@ function draw(timems) {
     app.enable(PicoGL.DEPTH_TEST);
     app.enable(PicoGL.CULL_FACE);
     drawCall.uniform("modelViewProjectionMatrix", modelViewProjectionMatrix);
+    drawCall.uniform("time", time);
     drawCall.draw();
 
     requestAnimationFrame(draw);
